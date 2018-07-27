@@ -11,7 +11,7 @@
     "prepublishOnly": "npm run build",
     "prerelease": "npm run test:cov",
     "release": "standard-version",
-    "postrelease": "git push --follow-tags origin master && npm publish",
+    "postrelease": "git push --follow-tags origin master && npm publish --access public",
     "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
     "test:v": "jest --verbose",
     "test:cov": "jest --verbose --coverage",
