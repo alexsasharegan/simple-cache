@@ -1,7 +1,7 @@
 {
-  "name": "simple-cache",
+  "name": "@alexsasharegan/simple-cache",
   "version": "1.0.0",
-  "description": "",
+  "description": "A basic key value store with bounded capacity for simple caching.",
   "main": "lib/simple-cache.js",
   "types": "lib/simple-cache.d.ts",
   "scripts": {
@@ -45,6 +45,7 @@
   "devDependencies": {
     "@types/jest": "^23.3.1",
     "@types/node": "^10.5.3",
+    "coveralls": "^3.0.2",
     "jest": "^23.4.1",
     "standard-version": "^4.4.0",
     "ts-jest": "^23.0.1",
