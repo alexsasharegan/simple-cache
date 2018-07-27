@@ -138,6 +138,8 @@ describe("SimpleCache", async () => {
 
     for (let i = 1; i < 1000; i += 1) {
       c.write(i.toString(10), i);
+      // write twice to test the overwrite logic
+      c.write(i.toString(10), i);
     }
 
     expect(c.size()).toBe(10);
@@ -156,4 +158,16 @@ describe("SimpleCache", async () => {
     expect(c.size()).toBe(1);
     expect(c.read(k)).toBe(fn(10));
   });
+
+  it("should not rebalance and remove the newest key item", async () => {
+    let c = SimpleCache<number>(10, "number");
+
+    for (let i = 1; i <= 1000; i += 1) {
+      c.write(i.toString(10), i);
+      c.read(i.toString(10));
+    }
+
+    expect(c.size()).toBe(10);
+  });
+
 });

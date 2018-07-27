@@ -78,9 +78,7 @@ export function SimpleCache<T>(
         return undefined;
       }
 
-      if (item.hits < Number.MAX_SAFE_INTEGER) {
-        item.hits += 1;
-      }
+      item.hits += 1;
 
       return item.value;
     },
@@ -101,8 +99,8 @@ export function SimpleCache<T>(
       }
     },
 
-    remove(key: string) {
-      delete c[key];
+    remove(k: string) {
+      delete c[k];
       size -= 1;
     },
 
@@ -135,7 +133,7 @@ export function SimpleCache<T>(
     },
 
     toJSON() {
-      let json: { [key: string]: T } = {};
+      let json: { [k: string]: T } = {};
 
       return Object.values(c).reduce((j, item) => {
         j[item.key] = item.value;
@@ -150,7 +148,8 @@ export function SimpleCache<T>(
 
     while (size > maxCapacity) {
       // Pull items off the least accessed side of the array.
-      // Use `!` to assert our value is not void. Tests verify we can trust this.
+      // Use `!` to assert our value is not void.
+      // Cache overflow tests verify we can trust this.
       item = values.shift()!;
 
       if (item.key == newestKey) {
