@@ -1,6 +1,6 @@
 {
   "name": "@alexsasharegan/simple-cache",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "A basic key value store with bounded capacity for simple caching.",
   "main": "lib/simple-cache.js",
   "types": "lib/simple-cache.d.ts",
