@@ -60,14 +60,21 @@ type CacheItem<T> = {
  * SimpleCache follows the Cache interface to store values by key (string).
  *
  * When deciding on a cache capacity, it's important to consider the size of
- * `T * maxCapacity` in the cache and how much space it will hold in memory.
+ * `T * capacity` in the cache and how much space it will hold in memory.
  * It performs a _"rebalance"_ on each write that pushes it over capacity.
  * A cache rebalance is as expensive as an array sort and an object key delete.
  */
 export function SimpleCache<T>(
-  maxCapacity: number,
+  capacity: number,
   typeLabel: string = "any"
 ): Cache<T> {
+  if (capacity < 1) {
+    throw new RangeError(
+      `SimpleCache requires an integer value of 1 or greater`
+    );
+  }
+
+  capacity = Math.trunc(capacity);
   let size = 0;
   let c: { [key: string]: CacheItem<T> } = {};
 
@@ -94,7 +101,7 @@ export function SimpleCache<T>(
       c[k] = { key: k, value: v, hits: 0 };
       size += 1;
 
-      if (size > maxCapacity) {
+      if (size > capacity) {
         rebalance(k);
       }
     },
@@ -129,7 +136,7 @@ export function SimpleCache<T>(
     },
 
     toString() {
-      return `SimpleCache<${typeLabel}> { size: ${size}, capacity: ${maxCapacity} }`;
+      return `SimpleCache<${typeLabel}> { size: ${size}, capacity: ${capacity} }`;
     },
 
     toJSON() {
@@ -146,7 +153,7 @@ export function SimpleCache<T>(
     let values = Object.values(c).sort((a, b) => a.hits - b.hits);
     let item: CacheItem<T>;
 
-    while (size > maxCapacity) {
+    while (size > capacity) {
       // Pull items off the least accessed side of the array.
       // Use `!` to assert our value is not void.
       // Cache overflow tests verify we can trust this.

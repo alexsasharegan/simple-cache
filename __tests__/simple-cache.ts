@@ -1,25 +1,47 @@
 import { SimpleCache } from "../src/simple-cache";
 
 describe("SimpleCache", async () => {
+  it("should not accept a capacity less than 1", async () => {
+    expect(() => SimpleCache(0)).toThrowError(RangeError);
+    expect(() => SimpleCache(0.9)).toThrowError(RangeError);
+    expect(() => SimpleCache(-1)).toThrowError(RangeError);
+  });
+
   it("should toString", async () => {
     let c = SimpleCache<string>(1, "Snapshot");
 
-    expect(String(c)).toMatchSnapshot("SimpleCache.toString");
+    expect(String(c)).toMatchSnapshot("empty");
+    c.write("test", "test");
+    expect(String(c)).toMatchSnapshot("with size");
+    expect(String(SimpleCache(100, "Anything"))).toMatchSnapshot("custom");
+    expect(String(SimpleCache(1))).toMatchSnapshot("no label");
   });
 
-  it("should be iterable", async () => {
-    let c = SimpleCache<number>(10, "number");
+  it("should return keys with Cache.keys()", async () => {
+    let cap = 10;
+    let c = SimpleCache<number>(cap, "number");
+    let keys = [];
 
-    for (let i = 1; i <= 10; i += 1) {
+    for (let i = 1; i <= cap; i += 1) {
+      let key = i.toString(10);
+      c.write(key, i);
+      keys.push(key);
+    }
+
+    expect(c.keys()).toEqual(keys);
+  });
+
+  it("should return values with Cache.values()", async () => {
+    let cap = 10;
+    let c = SimpleCache<number>(cap, "number");
+    let values = [];
+
+    for (let i = 1; i <= cap; i += 1) {
       c.write(i.toString(10), i);
+      values.push(i);
     }
 
-    for (let entry of c.entries()) {
-      expect(Array.isArray(entry)).toBe(true);
-      let [key, value] = entry;
-      expect(typeof key).toBe("string");
-      expect(typeof value).toBe("number");
-    }
+    expect(c.values()).toEqual(values);
   });
 
   it("should toJSON", async () => {
@@ -64,37 +86,6 @@ describe("SimpleCache", async () => {
     }
 
     expect(c.size()).toBe(10);
-  });
-
-  it("should return the values of the cache", async () => {
-    let c = SimpleCache<number>(10);
-
-    for (let i = 1; i <= 10; i += 1) {
-      c.write(i.toString(10), i);
-    }
-
-    expect(c.values()).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-  });
-
-  it("should return the keys of the cache", async () => {
-    let c = SimpleCache<number>(10);
-
-    for (let i = 1; i <= 10; i += 1) {
-      c.write(i.toString(10), i);
-    }
-
-    expect(c.keys()).toEqual([
-      "1",
-      "2",
-      "3",
-      "4",
-      "5",
-      "6",
-      "7",
-      "8",
-      "9",
-      "10",
-    ]);
   });
 
   it("should return the entries of the cache", async () => {

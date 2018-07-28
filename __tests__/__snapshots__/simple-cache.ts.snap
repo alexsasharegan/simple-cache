@@ -15,4 +15,10 @@ exports[`SimpleCache should toJSON 1`] = `
 }"
 `;
 
-exports[`SimpleCache should toString: SimpleCache.toString 1`] = `"SimpleCache<Snapshot> { size: 0, capacity: 1 }"`;
+exports[`SimpleCache should toString: custom 1`] = `"SimpleCache<Anything> { size: 0, capacity: 100 }"`;
+
+exports[`SimpleCache should toString: empty 1`] = `"SimpleCache<Snapshot> { size: 0, capacity: 1 }"`;
+
+exports[`SimpleCache should toString: no label 1`] = `"SimpleCache<any> { size: 0, capacity: 1 }"`;
+
+exports[`SimpleCache should toString: with size 1`] = `"SimpleCache<Snapshot> { size: 1, capacity: 1 }"`;
