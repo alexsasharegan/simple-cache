@@ -134,16 +134,21 @@ describe("SimpleCache", async () => {
   });
 
   it("should not overflow the cache size", async () => {
-    let c = SimpleCache<number>(10);
+    let cap = 3;
+    let runs = cap * cap;
+    let overwrites = 3;
+    let c = SimpleCache<number>(cap);
 
-    for (let i = 1; i < 1000; i += 1) {
+    for (let i = 1; i <= runs; i += 1) {
       c.write(i.toString(10), i);
-      // write twice to test the overwrite logic
-      c.write(i.toString(10), i);
+      // perform excess writes to test the overwrite logic maintaining size/cap
+      for (let j = 1; j <= overwrites; j += 1) {
+        c.write(i.toString(10), i);
+      }
     }
 
-    expect(c.size()).toBe(10);
-    expect(c.values().length).toBe(10);
+    expect(c.size()).toBe(cap);
+    expect(c.values().length).toBe(cap);
   });
 
   it("should update values without increasing the size on same key", async () => {
@@ -159,15 +164,27 @@ describe("SimpleCache", async () => {
     expect(c.read(k)).toBe(fn(10));
   });
 
-  it("should not rebalance and remove the newest key item", async () => {
-    let c = SimpleCache<number>(10, "number");
+  it("should preserve the newest write even when it has the lowest read hits", async () => {
+    let cap = 10;
+    let test_hits = 2;
+    let c = SimpleCache<number>(cap, "number");
 
-    for (let i = 1; i <= 1000; i += 1) {
+    // Fill the cache up with values that all have a few read hits
+    // so the new overflow value is the prime candidate for removal
+    // in the cache rebalance (rebalance priority is based on read hits).
+    for (let i = 1; i <= cap; i += 1) {
       c.write(i.toString(10), i);
-      c.read(i.toString(10));
+      for (let j = 1; j <= test_hits; j += 1) {
+        c.read(i.toString(10));
+      }
     }
 
-    expect(c.size()).toBe(10);
-  });
+    let test = {
+      key: (cap + 1).toString(10),
+      val: cap + 1,
+    };
 
+    c.write(test.key, test.val);
+    expect(c.read(test.key)).toBe(test.val);
+  });
 });
