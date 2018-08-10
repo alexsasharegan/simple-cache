@@ -45,7 +45,7 @@ export interface Cache<T> {
    */
   toString(): string;
   /**
-   * Serializeable for JSON.stringify.
+   * Serializable for JSON.stringify.
    */
   toJSON(): { [key: string]: T };
 }
