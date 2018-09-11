@@ -7,54 +7,54 @@
  * - `Cache.invalidate`: empty the cache
  */
 export interface Cache<T> {
-  /**
-   * Read a value from the cache by key. May not return a value if cache miss.
-   */
-  read(key: string): T | void;
-  /**
-   * Write a value to the cache at a given key.
-   */
-  write(key: string, value: T): void;
-  /**
-   * Delete a keyed value from the cache.
-   */
-  remove(key: string): void;
-  /**
-   * Wipe the cache clean.
-   */
-  invalidate(): void;
-  /**
-   * Returns the current size of the cache.
-   */
-  size(): number;
-  /**
-   * Returns an array of all the keys in the cache.
-   */
-  keys(): string[];
-  /**
-   * Returns an array of all the values in the cache.
-   */
-  values(): T[];
-  /**
-   * Returns an array of [key, value] array tuples
-   */
-  entries(): Array<[string, T]>;
-  /**
-   * Returns a string representation of the cache with its label, size, and
-   * capacity.
-   */
-  toString(): string;
-  /**
-   * Serializable for JSON.stringify.
-   */
-  toJSON(): { [key: string]: T };
+	/**
+	 * Read a value from the cache by key. May not return a value if cache miss.
+	 */
+	read(key: string): T | void
+	/**
+	 * Write a value to the cache at a given key.
+	 */
+	write(key: string, value: T): void
+	/**
+	 * Delete a keyed value from the cache.
+	 */
+	remove(key: string): void
+	/**
+	 * Wipe the cache clean.
+	 */
+	invalidate(): void
+	/**
+	 * Returns the current size of the cache.
+	 */
+	size(): number
+	/**
+	 * Returns an array of all the keys in the cache.
+	 */
+	keys(): string[]
+	/**
+	 * Returns an array of all the values in the cache.
+	 */
+	values(): T[]
+	/**
+	 * Returns an array of [key, value] array tuples
+	 */
+	entries(): Array<[string, T]>
+	/**
+	 * Returns a string representation of the cache with its label, size, and
+	 * capacity.
+	 */
+	toString(): string
+	/**
+	 * Serializable for JSON.stringify.
+	 */
+	toJSON(): { [key: string]: T }
 }
 
 type CacheItem<T> = {
-  hits: number;
-  key: string;
-  value: T;
-};
+	hits: number
+	key: string
+	value: T
+}
 
 /**
  * SimpleCache follows the Cache interface to store values by key (string).
@@ -65,107 +65,261 @@ type CacheItem<T> = {
  * A cache rebalance is as expensive as an array sort and an object key delete.
  */
 export function SimpleCache<T>(
-  capacity: number,
-  typeLabel: string = "any"
+	capacity: number,
+	typeLabel: string = "any"
 ): Cache<T> {
-  if (capacity < 1) {
-    throw new RangeError(
-      `SimpleCache requires an integer value of 1 or greater`
-    );
-  }
+	if (capacity < 1) {
+		throw new RangeError(
+			`SimpleCache requires an integer value of 1 or greater`
+		)
+	}
 
-  capacity = Math.trunc(capacity);
-  let size = 0;
-  let c: { [key: string]: CacheItem<T> } = {};
+	capacity = Math.trunc(capacity)
+	let size = 0
+	let c: { [key: string]: CacheItem<T> } = {}
 
-  const cache: Cache<T> = {
-    read(k) {
-      let item = c[k];
-      if (!item) {
-        return undefined;
-      }
+	const cache: Cache<T> = {
+		read(k) {
+			let item = c[k]
+			if (!item) {
+				return undefined
+			}
 
-      item.hits += 1;
+			item.hits += 1
 
-      return item.value;
-    },
+			return item.value
+		},
 
-    write(k, v) {
-      // If we're doing a cache overwrite,
-      // update the value without incrementing the size.
-      if (c[k]) {
-        c[k].value = v;
-        return;
-      }
+		write(k, v) {
+			// If we're doing a cache overwrite,
+			// update the value without incrementing the size.
+			if (c[k]) {
+				c[k].value = v
+				return
+			}
 
-      c[k] = { key: k, value: v, hits: 0 };
-      size += 1;
+			c[k] = { key: k, value: v, hits: 0 }
+			size += 1
 
-      if (size > capacity) {
-        rebalance(k);
-      }
-    },
+			if (size > capacity) {
+				rebalance(k)
+			}
+		},
 
-    remove(k: string) {
-      delete c[k];
-      size -= 1;
-    },
+		remove(k: string) {
+			delete c[k]
+			size -= 1
+		},
 
-    invalidate() {
-      c = {};
-      size = 0;
-    },
+		invalidate() {
+			c = {}
+			size = 0
+		},
 
-    size() {
-      return size;
-    },
+		size() {
+			return size
+		},
 
-    keys() {
-      return Object.keys(c);
-    },
+		keys() {
+			return Object.keys(c)
+		},
 
-    values() {
-      return Object.values(c).map(x => x.value);
-    },
+		values() {
+			return Object.values(c).map(x => x.value)
+		},
 
-    entries() {
-      return Object.entries(c).map(([k, v]) => {
-        let ret: [string, T] = [k, v.value];
-        return ret;
-      });
-    },
+		entries() {
+			return Object.entries(c).map(([k, v]) => {
+				let ret: [string, T] = [k, v.value]
+				return ret
+			})
+		},
 
-    toString() {
-      return `SimpleCache<${typeLabel}> { size: ${size}, capacity: ${capacity} }`;
-    },
+		toString() {
+			return `SimpleCache<${typeLabel}> { size: ${size}, capacity: ${capacity} }`
+		},
 
-    toJSON() {
-      let json: { [k: string]: T } = {};
+		toJSON() {
+			let json: { [k: string]: T } = {}
 
-      return Object.values(c).reduce((j, item) => {
-        j[item.key] = item.value;
-        return j;
-      }, json);
-    },
-  };
+			return Object.values(c).reduce((j, item) => {
+				j[item.key] = item.value
+				return j
+			}, json)
+		},
+	}
 
-  function rebalance(newestKey: string) {
-    let values = Object.values(c).sort((a, b) => a.hits - b.hits);
-    let item: CacheItem<T>;
+	function rebalance(newestKey: string) {
+		let values = Object.values(c).sort((a, b) => a.hits - b.hits)
+		let item: CacheItem<T>
 
-    while (size > capacity) {
-      // Pull items off the least accessed side of the array.
-      // Use `!` to assert our value is not void.
-      // Cache overflow tests verify we can trust this.
-      item = values.shift()!;
+		while (size > capacity) {
+			// Pull items off the least accessed side of the array.
+			// Use `!` to assert our value is not void.
+			// Cache overflow tests verify we can trust this.
+			item = values.shift()!
 
-      if (item.key == newestKey) {
-        continue;
-      }
+			if (item.key == newestKey) {
+				continue
+			}
 
-      cache.remove(item.key);
-    }
-  }
+			cache.remove(item.key)
+		}
+	}
 
-  return cache;
+	return cache
+}
+
+type EphemeralCacheItem<T> = {
+	hits: number
+	/**
+	 * milliseconds
+	 */
+	timestamp: number
+	key: string
+	value: T
+}
+
+export interface EphemeralCache<T> extends Cache<T> {
+	startInterval(): void
+	stopInterval(): void
+}
+
+/**
+ * EphemeralCache extends the Cache interface to store values temporarily.
+ */
+export function EphemeralCache<T>(
+	capacity: number,
+	durationMs: number,
+	typeLabel: string = "any"
+): EphemeralCache<T> {
+	if (capacity < 1 || durationMs < 1) {
+		throw new RangeError(
+			`EphemeralCache requires an integer value of 1 or greater for capacity and durationMs`
+		)
+	}
+
+	capacity = Math.trunc(capacity)
+	let size = 0
+	let c: { [key: string]: EphemeralCacheItem<T> } = {}
+
+	function purge() {
+		let now = Date.now()
+		for (let { timestamp, key } of Object.values(c)) {
+			if (timestamp + durationMs > now) {
+				cache.remove(key)
+			}
+		}
+	}
+
+	let interval_id: void | NodeJS.Timer = setInterval(purge, durationMs)
+
+	const cache: EphemeralCache<T> = {
+		stopInterval() {
+			if (interval_id) {
+				interval_id = clearInterval(interval_id)
+			}
+		},
+
+		startInterval() {
+			interval_id = setInterval(purge, durationMs)
+		},
+
+		read(k) {
+			let item = c[k]
+			if (!item) {
+				return undefined
+			}
+
+			// Our interval might be between ticks.
+			if (Date.now() > item.timestamp + durationMs) {
+				cache.remove(k)
+				return undefined
+			}
+
+			item.hits += 1
+
+			return item.value
+		},
+
+		write(k, v) {
+			// If we're doing a cache overwrite,
+			// update the value without incrementing the size.
+			if (c[k]) {
+				let i = c[k]
+				i.value = v
+				i.timestamp = Date.now()
+				return
+			}
+
+			c[k] = { key: k, value: v, hits: 0, timestamp: Date.now() }
+			size += 1
+
+			if (size > capacity) {
+				rebalance(k)
+			}
+		},
+
+		remove(k: string) {
+			delete c[k]
+			size -= 1
+		},
+
+		invalidate() {
+			c = {}
+			size = 0
+		},
+
+		size() {
+			return size
+		},
+
+		keys() {
+			return Object.keys(c)
+		},
+
+		values() {
+			return Object.values(c).map(x => x.value)
+		},
+
+		entries() {
+			return Object.entries(c).map(([k, v]) => {
+				let ret: [string, T] = [k, v.value]
+				return ret
+			})
+		},
+
+		toString() {
+			return `EphemeralCache<${typeLabel}> { size: ${size}, capacity: ${capacity}, durationMs: ${durationMs} }`
+		},
+
+		toJSON() {
+			let json: { [k: string]: T } = {}
+
+			return Object.values(c).reduce((j, item) => {
+				j[item.key] = item.value
+				return j
+			}, json)
+		},
+	}
+
+	function rebalance(newestKey: string) {
+		let values = Object.values(c).sort((a, b) => a.hits - b.hits)
+		let item: CacheItem<T>
+
+		while (size > capacity) {
+			// Pull items off the least accessed side of the array.
+			// Use `!` to assert our value is not void.
+			// Cache overflow tests verify we can trust this.
+			item = values.shift()!
+
+			if (item.key == newestKey) {
+				continue
+			}
+
+			cache.remove(item.key)
+		}
+	}
+
+	return cache
 }
