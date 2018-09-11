@@ -1,37 +1,64 @@
-import { Cache } from "./cache.interface"
+import { EphemeralCache } from "./cache.interface"
 
-type CacheItem<T> = {
+type EphemeralCacheItem<T> = {
 	hits: number
+	/**
+	 * milliseconds
+	 */
+	timestamp: number
 	key: string
 	value: T
 }
 
 /**
- * SimpleCache follows the Cache interface to store values by key (string).
- *
- * When deciding on a cache capacity, it's important to consider the size of
- * `T * capacity` in the cache and how much space it will hold in memory.
- * It performs a _"rebalance"_ on each write that pushes it over capacity.
- * A cache rebalance is as expensive as an array sort and an object key delete.
+ * EphemeralCache extends the Cache interface to store values temporarily.
  */
-export function SimpleCache<T>(
+export function TemporaryCache<T>(
 	capacity: number,
+	durationMs: number,
 	typeLabel: string = "any"
-): Cache<T> {
-	if (capacity < 1) {
+): EphemeralCache<T> {
+	if (capacity < 1 || durationMs < 1) {
 		throw new RangeError(
-			`SimpleCache requires an integer value of 1 or greater`
+			`EphemeralCache requires an integer value of 1 or greater for capacity and durationMs`
 		)
 	}
 
 	capacity = Math.trunc(capacity)
 	let size = 0
-	let c: { [key: string]: CacheItem<T> } = {}
+	let c: { [key: string]: EphemeralCacheItem<T> } = {}
 
-	const cache: Cache<T> = {
+	function purge() {
+		let now = Date.now()
+		for (let { timestamp, key } of Object.values(c)) {
+			if (timestamp + durationMs > now) {
+				cache.remove(key)
+			}
+		}
+	}
+
+	let interval_id: void | NodeJS.Timer = setInterval(purge, durationMs)
+
+	const cache: EphemeralCache<T> = {
+		stopInterval() {
+			if (interval_id) {
+				interval_id = clearInterval(interval_id)
+			}
+		},
+
+		startInterval() {
+			interval_id = setInterval(purge, durationMs)
+		},
+
 		read(k) {
 			let item = c[k]
 			if (!item) {
+				return undefined
+			}
+
+			// Our interval might be between ticks.
+			if (Date.now() > item.timestamp + durationMs) {
+				cache.remove(k)
 				return undefined
 			}
 
@@ -44,11 +71,13 @@ export function SimpleCache<T>(
 			// If we're doing a cache overwrite,
 			// update the value without incrementing the size.
 			if (c[k]) {
-				c[k].value = v
+				let i = c[k]
+				i.value = v
+				i.timestamp = Date.now()
 				return
 			}
 
-			c[k] = { key: k, value: v, hits: 0 }
+			c[k] = { key: k, value: v, hits: 0, timestamp: Date.now() }
 			size += 1
 
 			if (size > capacity) {
@@ -86,7 +115,7 @@ export function SimpleCache<T>(
 		},
 
 		toString() {
-			return `SimpleCache<${typeLabel}> { size: ${size}, capacity: ${capacity} }`
+			return `EphemeralCache<${typeLabel}> { size: ${size}, capacity: ${capacity}, durationMs: ${durationMs} }`
 		},
 
 		toJSON() {
@@ -101,7 +130,7 @@ export function SimpleCache<T>(
 
 	function rebalance(newestKey: string) {
 		let values = Object.values(c).sort((a, b) => a.hits - b.hits)
-		let item: CacheItem<T>
+		let item: EphemeralCacheItem<T>
 
 		while (size > capacity) {
 			// Pull items off the least accessed side of the array.

@@ -1,4 +1,4 @@
-import { SimpleCache } from "../src/simple-cache"
+import { SimpleCache } from "../src/index"
 
 describe("SimpleCache", async () => {
 	it("should not accept a capacity less than 1", async () => {
