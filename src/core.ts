@@ -124,11 +124,11 @@ export function CoreCache<K, V>(
 		},
 
 		values() {
-			return Array.from(c.values()).map(x => x.value)
+			return Array.from(c.values(), x => x.value)
 		},
 
 		entries() {
-			return Array.from(c.entries()).map(([k, v]) => {
+			return Array.from(c.entries(), ([k, v]) => {
 				// Strip out the internals
 				// (TS cast is to preserve the correct tuple shape)
 				return [k, v.value] as [K, V]
