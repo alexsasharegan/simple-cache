@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="1.3.0"></a>
+# [1.3.0](https://github.com/alexsasharegan/simple-cache/compare/v1.2.0...v1.3.0) (2018-09-16)
+
+
+### Features
+
+* adds EphemeralCache ([02aa813](https://github.com/alexsasharegan/simple-cache/commit/02aa813))
+* breakout lib into separate internal files ([69ea1f1](https://github.com/alexsasharegan/simple-cache/commit/69ea1f1))
+* cache now supports any key type ([2b058d9](https://github.com/alexsasharegan/simple-cache/commit/2b058d9))
+
+
+
 <a name="1.2.0"></a>
 # [1.2.0](https://github.com/alexsasharegan/simple-cache/compare/v1.1.2...v1.2.0) (2018-07-28)
 
