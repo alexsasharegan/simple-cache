@@ -1,4 +1,4 @@
-import { Cache } from "./cache.interface"
+import { Cache, TypeLabel } from "./cache.interface"
 import { CoreCache } from "./core"
 
 /**
@@ -11,7 +11,7 @@ import { CoreCache } from "./core"
  */
 export function SimpleCache<K, V>(
 	capacity: number,
-	typeLabel: string = "any"
+	typeLabel: TypeLabel = { key: "any", value: "any" }
 ): Cache<K, V> {
 	const {
 		clear,
@@ -36,9 +36,9 @@ export function SimpleCache<K, V>(
 		values,
 		write,
 		toString() {
-			return `${
-				SimpleCache.name /* makes name refactoring simpler */
-			}<${typeLabel}> { size: ${size()}, capacity: ${capacity} }`
+			return `${SimpleCache.name /* makes name refactoring simpler */}<${
+				typeLabel.key
+			}, ${typeLabel.value}> { size: ${size()}, capacity: ${capacity} }`
 		},
 
 		toJSON() {

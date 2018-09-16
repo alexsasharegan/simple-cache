@@ -45,10 +45,10 @@ exports[`EphemeralCache should toJSON 1`] = `
 ]"
 `;
 
-exports[`EphemeralCache should toString: custom 1`] = `"EphemeralCache<Anything> { size: 0, capacity: 100, durationMs: 100 }"`;
+exports[`EphemeralCache should toString: custom 1`] = `"EphemeralCache<any, Anything> { size: 0, capacity: 100, durationMs: 100 }"`;
 
-exports[`EphemeralCache should toString: empty 1`] = `"EphemeralCache<Snapshot> { size: 0, capacity: 1, durationMs: 100 }"`;
+exports[`EphemeralCache should toString: empty 1`] = `"EphemeralCache<string, Snapshot> { size: 0, capacity: 1, durationMs: 100 }"`;
 
-exports[`EphemeralCache should toString: no label 1`] = `"EphemeralCache<any> { size: 0, capacity: 1, durationMs: 100 }"`;
+exports[`EphemeralCache should toString: no label 1`] = `"EphemeralCache<any, any> { size: 0, capacity: 1, durationMs: 100 }"`;
 
-exports[`EphemeralCache should toString: with size 1`] = `"EphemeralCache<Snapshot> { size: 1, capacity: 1, durationMs: 100 }"`;
+exports[`EphemeralCache should toString: with size 1`] = `"EphemeralCache<string, Snapshot> { size: 1, capacity: 1, durationMs: 100 }"`;

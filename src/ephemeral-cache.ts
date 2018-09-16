@@ -1,4 +1,4 @@
-import { Cache } from "./cache.interface"
+import { Cache, TypeLabel } from "./cache.interface"
 import { CoreCache, CacheItem } from "./core"
 
 interface EphemeralCacheItem<K, V> extends CacheItem<K, V> {
@@ -14,7 +14,7 @@ interface EphemeralCacheItem<K, V> extends CacheItem<K, V> {
 export function EphemeralCache<K, V>(
 	capacity: number,
 	durationMs: number,
-	typeLabel: string = "any"
+	typeLabel: TypeLabel = { key: "any", value: "any" }
 ): Cache<K, V> {
 	if (durationMs < 1) {
 		throw new RangeError(
@@ -76,9 +76,11 @@ export function EphemeralCache<K, V>(
 		},
 
 		toString() {
-			return `${
-				EphemeralCache.name /* makes name refactoring simpler */
-			}<${typeLabel}> { size: ${size()}, capacity: ${capacity}, durationMs: ${durationMs} }`
+			return `${EphemeralCache.name /* makes name refactoring simpler */}<${
+				typeLabel.key
+			}, ${
+				typeLabel.value
+			}> { size: ${size()}, capacity: ${capacity}, durationMs: ${durationMs} }`
 		},
 
 		toJSON() {

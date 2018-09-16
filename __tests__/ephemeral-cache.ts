@@ -10,20 +10,26 @@ describe("EphemeralCache", async () => {
 	})
 
 	it("should toString", async () => {
-		let c = EphemeralCache<string, string>(1, 100, "Snapshot")
+		let c = EphemeralCache<string, string>(1, 100, {
+			key: "string",
+			value: "Snapshot",
+		})
 
 		expect(String(c)).toMatchSnapshot("empty")
 		c.write("test", "test")
 		expect(String(c)).toMatchSnapshot("with size")
-		expect(String(EphemeralCache(100, 100, "Anything"))).toMatchSnapshot(
-			"custom"
-		)
+		expect(
+			String(EphemeralCache(100, 100, { key: "any", value: "Anything" }))
+		).toMatchSnapshot("custom")
 		expect(String(EphemeralCache(1, 100))).toMatchSnapshot("no label")
 	})
 
 	it("should clear cache items after duration has expired", async () => {
 		let durationMs = 20
-		let c = EphemeralCache<string, number>(10, durationMs, "number")
+		let c = EphemeralCache<string, number>(10, durationMs, {
+			key: "string",
+			value: "number",
+		})
 
 		let item = { key: "0", value: 1 }
 
@@ -36,7 +42,10 @@ describe("EphemeralCache", async () => {
 
 	it("should not return item after duration has expired", async () => {
 		let durationMs = 20
-		let c = EphemeralCache<number, number>(10, durationMs, "number")
+		let c = EphemeralCache<number, number>(10, durationMs, {
+			key: "string",
+			value: "number",
+		})
 
 		let item = { key: 1, value: 1 }
 		// Write our value to the cache in between the interval
@@ -48,7 +57,10 @@ describe("EphemeralCache", async () => {
 
 	it("should toJSON", async () => {
 		let durationMs = 20
-		let c = EphemeralCache<string, number>(10, durationMs, "number")
+		let c = EphemeralCache<string, number>(10, durationMs, {
+			key: "string",
+			value: "number",
+		})
 
 		for (let i = 1; i <= 10; i += 1) {
 			c.write(i.toString(10), i)

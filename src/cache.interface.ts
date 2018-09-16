@@ -38,12 +38,12 @@ export interface BaseCache<K, V> {
 }
 
 /**
- * Cache is an interface for caching a single value type, `T`.
+ * Cache is an interface for caching key/value pairs of types `K` and `V`.
  * It's primary functionality includes:
  * - `Cache.write`: write a value at a key
  * - `Cache.read`: read a value from a key
  * - `Cache.remove`: remove a value by key
- * - `Cache.invalidate`: empty the cache
+ * - `Cache.clear`: empty the cache
  */
 export interface Cache<K, V> extends BaseCache<K, V> {
 	/**
@@ -55,4 +55,9 @@ export interface Cache<K, V> extends BaseCache<K, V> {
 	 * Serializable for JSON.stringify.
 	 */
 	toJSON(): Array<[K, V]>
+}
+
+export interface TypeLabel {
+	key: string
+	value: string
 }
