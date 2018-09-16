@@ -2,6 +2,23 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.0.0"></a>
+# [2.0.0](https://github.com/alexsasharegan/simple-cache/compare/v1.3.0...v2.0.0) (2018-09-16)
+
+
+### Features
+
+* refactor caches to reuse a core, internal cache implementation ([74db3b7](https://github.com/alexsasharegan/simple-cache/commit/74db3b7))
+
+
+### BREAKING CHANGES
+
+* Renames TemporaryCache to EphemeralCache
+* removes interval methods `startInterval` & `stopInterval`
+* Removes internal usage of setInterval
+
+
+
 <a name="1.3.0"></a>
 # [1.3.0](https://github.com/alexsasharegan/simple-cache/compare/v1.2.0...v1.3.0) (2018-09-16)
 
