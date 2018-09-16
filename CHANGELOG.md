@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="3.0.0"></a>
+# [3.0.0](https://github.com/alexsasharegan/simple-cache/compare/v2.0.0...v3.0.0) (2018-09-16)
+
+
+### Features
+
+* updates documentation and toString supports K/V labeling ([80495a0](https://github.com/alexsasharegan/simple-cache/commit/80495a0))
+
+
+### BREAKING CHANGES
+
+* type label param refactored to object with fields `key` & `value`
+
+
+
 <a name="2.0.0"></a>
 # [2.0.0](https://github.com/alexsasharegan/simple-cache/compare/v1.3.0...v2.0.0) (2018-09-16)
 
