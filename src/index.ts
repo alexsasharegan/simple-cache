@@ -1,3 +1,3 @@
-export { Cache, EphemeralCache } from "./cache.interface"
+export { Cache } from "./cache.interface"
 export { SimpleCache } from "./simple-cache"
-export { TemporaryCache } from "./ephemeral-cache"
+export { EphemeralCache } from "./ephemeral-cache"

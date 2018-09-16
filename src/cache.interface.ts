@@ -1,12 +1,4 @@
-/**
- * Cache is an interface for caching a single value type, `T`.
- * It's primary functionality includes:
- * - `Cache.write`: write a value at a key
- * - `Cache.read`: read a value from a key
- * - `Cache.remove`: remove a value by key
- * - `Cache.invalidate`: empty the cache
- */
-export interface Cache<K, V> {
+export interface BaseCache<K, V> {
 	/**
 	 * Read a value from the cache by key. May not return a value if cache miss.
 	 */
@@ -21,6 +13,10 @@ export interface Cache<K, V> {
 	remove(key: K): void
 	/**
 	 * Wipe the cache clean.
+	 */
+	clear(): void
+	/**
+	 * Wipe the cache clean. (Alias for clear)
 	 */
 	invalidate(): void
 	/**
@@ -39,6 +35,17 @@ export interface Cache<K, V> {
 	 * Returns an array of [key, value] array tuples
 	 */
 	entries(): Array<[K, V]>
+}
+
+/**
+ * Cache is an interface for caching a single value type, `T`.
+ * It's primary functionality includes:
+ * - `Cache.write`: write a value at a key
+ * - `Cache.read`: read a value from a key
+ * - `Cache.remove`: remove a value by key
+ * - `Cache.invalidate`: empty the cache
+ */
+export interface Cache<K, V> extends BaseCache<K, V> {
 	/**
 	 * Returns a string representation of the cache with its label, size, and
 	 * capacity.
@@ -48,9 +55,4 @@ export interface Cache<K, V> {
 	 * Serializable for JSON.stringify.
 	 */
 	toJSON(): Array<[K, V]>
-}
-
-export interface EphemeralCache<K, V> extends Cache<K, V> {
-	startInterval(): void
-	stopInterval(): void
 }

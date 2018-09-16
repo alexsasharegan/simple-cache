@@ -1,0 +1,54 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`EphemeralCache should toJSON 1`] = `
+"[
+  [
+    \\"1\\",
+    1
+  ],
+  [
+    \\"2\\",
+    2
+  ],
+  [
+    \\"3\\",
+    3
+  ],
+  [
+    \\"4\\",
+    4
+  ],
+  [
+    \\"5\\",
+    5
+  ],
+  [
+    \\"6\\",
+    6
+  ],
+  [
+    \\"7\\",
+    7
+  ],
+  [
+    \\"8\\",
+    8
+  ],
+  [
+    \\"9\\",
+    9
+  ],
+  [
+    \\"10\\",
+    10
+  ]
+]"
+`;
+
+exports[`EphemeralCache should toString: custom 1`] = `"EphemeralCache<Anything> { size: 0, capacity: 100, durationMs: 100 }"`;
+
+exports[`EphemeralCache should toString: empty 1`] = `"EphemeralCache<Snapshot> { size: 0, capacity: 1, durationMs: 100 }"`;
+
+exports[`EphemeralCache should toString: no label 1`] = `"EphemeralCache<any> { size: 0, capacity: 1, durationMs: 100 }"`;
+
+exports[`EphemeralCache should toString: with size 1`] = `"EphemeralCache<Snapshot> { size: 1, capacity: 1, durationMs: 100 }"`;
