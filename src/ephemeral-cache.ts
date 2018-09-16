@@ -1,23 +1,23 @@
 import { EphemeralCache } from "./cache.interface"
 
-type EphemeralCacheItem<T> = {
+type EphemeralCacheItem<K, V> = {
 	hits: number
 	/**
-	 * milliseconds
+	 * unix milliseconds
 	 */
-	timestamp: number
-	key: string
-	value: T
+	expiration: number
+	key: K
+	value: V
 }
 
 /**
  * EphemeralCache extends the Cache interface to store values temporarily.
  */
-export function TemporaryCache<T>(
+export function TemporaryCache<K, V>(
 	capacity: number,
 	durationMs: number,
 	typeLabel: string = "any"
-): EphemeralCache<T> {
+): EphemeralCache<K, V> {
 	if (capacity < 1 || durationMs < 1) {
 		throw new RangeError(
 			`EphemeralCache requires an integer value of 1 or greater for capacity and durationMs`
@@ -25,13 +25,12 @@ export function TemporaryCache<T>(
 	}
 
 	capacity = Math.trunc(capacity)
-	let size = 0
-	let c: { [key: string]: EphemeralCacheItem<T> } = {}
+	let c: Map<K, EphemeralCacheItem<K, V>> = new Map()
 
 	function purge() {
 		let now = Date.now()
-		for (let { timestamp, key } of Object.values(c)) {
-			if (timestamp + durationMs > now) {
+		for (let { expiration, key } of c.values()) {
+			if (now > expiration) {
 				cache.remove(key)
 			}
 		}
@@ -39,7 +38,7 @@ export function TemporaryCache<T>(
 
 	let interval_id: void | NodeJS.Timer = setInterval(purge, durationMs)
 
-	const cache: EphemeralCache<T> = {
+	const cache: EphemeralCache<K, V> = {
 		stopInterval() {
 			if (interval_id) {
 				interval_id = clearInterval(interval_id)
@@ -51,13 +50,13 @@ export function TemporaryCache<T>(
 		},
 
 		read(k) {
-			let item = c[k]
+			let item = c.get(k)
 			if (!item) {
 				return undefined
 			}
 
 			// Our interval might be between ticks.
-			if (Date.now() > item.timestamp + durationMs) {
+			if (Date.now() > item.expiration) {
 				cache.remove(k)
 				return undefined
 			}
@@ -70,69 +69,67 @@ export function TemporaryCache<T>(
 		write(k, v) {
 			// If we're doing a cache overwrite,
 			// update the value without incrementing the size.
-			if (c[k]) {
-				let i = c[k]
-				i.value = v
-				i.timestamp = Date.now()
+			let item = c.get(k)
+			if (item) {
+				item.value = v
+				item.expiration = Date.now() + durationMs
 				return
 			}
 
-			c[k] = { key: k, value: v, hits: 0, timestamp: Date.now() }
-			size += 1
-
-			if (size > capacity) {
+			c.set(k, {
+				key: k,
+				value: v,
+				hits: 0,
+				expiration: Date.now() + durationMs,
+			})
+			if (c.size > capacity) {
 				rebalance(k)
 			}
 		},
 
-		remove(k: string) {
-			delete c[k]
-			size -= 1
+		remove(k) {
+			c.delete(k)
 		},
 
 		invalidate() {
-			c = {}
-			size = 0
+			c.clear()
 		},
 
 		size() {
-			return size
+			return c.size
 		},
 
 		keys() {
-			return Object.keys(c)
+			return [...c.keys()]
 		},
 
 		values() {
-			return Object.values(c).map(x => x.value)
+			return [...c.values()].map(x => x.value)
 		},
 
 		entries() {
-			return Object.entries(c).map(([k, v]) => {
-				let ret: [string, T] = [k, v.value]
-				return ret
+			return [...c.entries()].map(([k, v]) => {
+				let e: [K, V] = [k, v.value]
+				return e
 			})
 		},
 
 		toString() {
-			return `EphemeralCache<${typeLabel}> { size: ${size}, capacity: ${capacity}, durationMs: ${durationMs} }`
+			return `EphemeralCache<${typeLabel}> { size: ${
+				c.size
+			}, capacity: ${capacity}, durationMs: ${durationMs} }`
 		},
 
 		toJSON() {
-			let json: { [k: string]: T } = {}
-
-			return Object.values(c).reduce((j, item) => {
-				j[item.key] = item.value
-				return j
-			}, json)
+			return cache.entries()
 		},
 	}
 
-	function rebalance(newestKey: string) {
+	function rebalance(newestKey: K) {
 		let values = Object.values(c).sort((a, b) => a.hits - b.hits)
-		let item: EphemeralCacheItem<T>
+		let item: EphemeralCacheItem<K, V>
 
-		while (size > capacity) {
+		while (c.size > capacity) {
 			// Pull items off the least accessed side of the array.
 			// Use `!` to assert our value is not void.
 			// Cache overflow tests verify we can trust this.

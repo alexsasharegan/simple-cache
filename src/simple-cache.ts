@@ -1,9 +1,9 @@
 import { Cache } from "./cache.interface"
 
-type CacheItem<T> = {
+type CacheItem<K, V> = {
 	hits: number
-	key: string
-	value: T
+	key: K
+	value: V
 }
 
 /**
@@ -14,10 +14,10 @@ type CacheItem<T> = {
  * It performs a _"rebalance"_ on each write that pushes it over capacity.
  * A cache rebalance is as expensive as an array sort and an object key delete.
  */
-export function SimpleCache<T>(
+export function SimpleCache<K, V>(
 	capacity: number,
 	typeLabel: string = "any"
-): Cache<T> {
+): Cache<K, V> {
 	if (capacity < 1) {
 		throw new RangeError(
 			`SimpleCache requires an integer value of 1 or greater`
@@ -25,12 +25,11 @@ export function SimpleCache<T>(
 	}
 
 	capacity = Math.trunc(capacity)
-	let size = 0
-	let c: { [key: string]: CacheItem<T> } = {}
+	let c: Map<K, CacheItem<K, V>> = new Map()
 
-	const cache: Cache<T> = {
+	const cache: Cache<K, V> = {
 		read(k) {
-			let item = c[k]
+			let item = c.get(k)
 			if (!item) {
 				return undefined
 			}
@@ -43,67 +42,62 @@ export function SimpleCache<T>(
 		write(k, v) {
 			// If we're doing a cache overwrite,
 			// update the value without incrementing the size.
-			if (c[k]) {
-				c[k].value = v
+			let item = c.get(k)
+			if (item) {
+				item.value = v
 				return
 			}
 
-			c[k] = { key: k, value: v, hits: 0 }
-			size += 1
+			c.set(k, { key: k, value: v, hits: 0 })
 
-			if (size > capacity) {
+			if (c.size > capacity) {
 				rebalance(k)
 			}
 		},
 
-		remove(k: string) {
-			delete c[k]
-			size -= 1
+		remove(k) {
+			c.delete(k)
 		},
 
 		invalidate() {
-			c = {}
-			size = 0
+			c.clear()
 		},
 
 		size() {
-			return size
+			return c.size
 		},
 
 		keys() {
-			return Object.keys(c)
+			return [...c.keys()]
 		},
 
 		values() {
-			return Object.values(c).map(x => x.value)
+			return [...c.values()].map(x => x.value)
 		},
 
 		entries() {
-			return Object.entries(c).map(([k, v]) => {
-				let ret: [string, T] = [k, v.value]
-				return ret
+			return [...c.entries()].map(([k, v]) => {
+				let e: [K, V] = [k, v.value]
+				return e
 			})
 		},
 
 		toString() {
-			return `SimpleCache<${typeLabel}> { size: ${size}, capacity: ${capacity} }`
+			return `SimpleCache<${typeLabel}> { size: ${
+				c.size
+			}, capacity: ${capacity} }`
 		},
 
 		toJSON() {
-			let json: { [k: string]: T } = {}
-
-			return Object.values(c).reduce((j, item) => {
-				j[item.key] = item.value
-				return j
-			}, json)
+			return cache.entries()
 		},
 	}
 
-	function rebalance(newestKey: string) {
-		let values = Object.values(c).sort((a, b) => a.hits - b.hits)
-		let item: CacheItem<T>
+	function rebalance(newestKey: K) {
+		let values = [...c.values()].sort((a, b) => a.hits - b.hits)
+		let item: CacheItem<K, V>
 
-		while (size > capacity) {
+		while (c.size > capacity) {
 			// Pull items off the least accessed side of the array.
 			// Use `!` to assert our value is not void.
 			// Cache overflow tests verify we can trust this.

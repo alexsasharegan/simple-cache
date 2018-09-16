@@ -8,7 +8,7 @@ describe("SimpleCache", async () => {
 	})
 
 	it("should toString", async () => {
-		let c = SimpleCache<string>(1, "Snapshot")
+		let c = SimpleCache<string, string>(1, "Snapshot")
 
 		expect(String(c)).toMatchSnapshot("empty")
 		c.write("test", "test")
@@ -19,7 +19,7 @@ describe("SimpleCache", async () => {
 
 	it("should return keys with Cache.keys()", async () => {
 		let cap = 10
-		let c = SimpleCache<number>(cap, "number")
+		let c = SimpleCache<string, number>(cap, "number")
 		let keys = []
 
 		for (let i = 1; i <= cap; i += 1) {
@@ -33,7 +33,7 @@ describe("SimpleCache", async () => {
 
 	it("should return values with Cache.values()", async () => {
 		let cap = 10
-		let c = SimpleCache<number>(cap, "number")
+		let c = SimpleCache<string, number>(cap, "number")
 		let values = []
 
 		for (let i = 1; i <= cap; i += 1) {
@@ -45,7 +45,7 @@ describe("SimpleCache", async () => {
 	})
 
 	it("should toJSON", async () => {
-		let c = SimpleCache<number>(10, "number")
+		let c = SimpleCache<string, number>(10, "number")
 
 		for (let i = 1; i <= 10; i += 1) {
 			c.write(i.toString(10), i)
@@ -59,7 +59,7 @@ describe("SimpleCache", async () => {
 			key: "test",
 			value: "pictalk",
 		}
-		let c = SimpleCache<string>(8)
+		let c = SimpleCache<string, string>(8)
 
 		expect(c.read(test.key)).toBe(undefined)
 
@@ -72,14 +72,14 @@ describe("SimpleCache", async () => {
 			key: "test",
 			value: "pictalk",
 		}
-		let c = SimpleCache<string>(8)
+		let c = SimpleCache<string, string>(8)
 		c.write(test.key, test.value)
 		c.remove(test.key)
 		expect(c.read(test.key)).toBe(undefined)
 	})
 
 	it("should return the size of the cache", async () => {
-		let c = SimpleCache<number>(10)
+		let c = SimpleCache<string, number>(10)
 
 		for (let i = 1; i <= 10; i += 1) {
 			c.write(i.toString(10), i)
@@ -89,7 +89,7 @@ describe("SimpleCache", async () => {
 	})
 
 	it("should return the entries of the cache", async () => {
-		let c = SimpleCache<number>(10)
+		let c = SimpleCache<string, number>(10)
 
 		for (let i = 1; i <= 10; i += 1) {
 			c.write(i.toString(10), i)
@@ -110,7 +110,7 @@ describe("SimpleCache", async () => {
 	})
 
 	it("should invalidate cache", async () => {
-		let c = SimpleCache<number>(10)
+		let c = SimpleCache<string, number>(10)
 
 		for (let i = 1; i <= 10; i += 1) {
 			c.write(i.toString(10), i)
@@ -128,7 +128,7 @@ describe("SimpleCache", async () => {
 		let cap = 3
 		let runs = cap * cap
 		let overwrites = 3
-		let c = SimpleCache<number>(cap)
+		let c = SimpleCache<string, number>(cap)
 
 		for (let i = 1; i <= runs; i += 1) {
 			c.write(i.toString(10), i)
@@ -143,7 +143,7 @@ describe("SimpleCache", async () => {
 	})
 
 	it("should update values without increasing the size on same key", async () => {
-		let c = SimpleCache<string>(10, "string")
+		let c = SimpleCache<string, string>(10, "string")
 		let k = "same key"
 		let fn = (n: number) => `updated value: ${n}`
 
@@ -158,7 +158,7 @@ describe("SimpleCache", async () => {
 	it("should preserve the newest write even when it has the lowest read hits", async () => {
 		let cap = 10
 		let test_hits = 2
-		let c = SimpleCache<number>(cap, "number")
+		let c = SimpleCache<string, number>(cap, "number")
 
 		// Fill the cache up with values that all have a few read hits
 		// so the new overflow value is the prime candidate for removal

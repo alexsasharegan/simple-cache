@@ -6,19 +6,19 @@
  * - `Cache.remove`: remove a value by key
  * - `Cache.invalidate`: empty the cache
  */
-export interface Cache<T> {
+export interface Cache<K, V> {
 	/**
 	 * Read a value from the cache by key. May not return a value if cache miss.
 	 */
-	read(key: string): T | void
+	read(key: K): V | void
 	/**
 	 * Write a value to the cache at a given key.
 	 */
-	write(key: string, value: T): void
+	write(key: K, value: V): void
 	/**
 	 * Delete a keyed value from the cache.
 	 */
-	remove(key: string): void
+	remove(key: K): void
 	/**
 	 * Wipe the cache clean.
 	 */
@@ -30,15 +30,15 @@ export interface Cache<T> {
 	/**
 	 * Returns an array of all the keys in the cache.
 	 */
-	keys(): string[]
+	keys(): K[]
 	/**
 	 * Returns an array of all the values in the cache.
 	 */
-	values(): T[]
+	values(): V[]
 	/**
 	 * Returns an array of [key, value] array tuples
 	 */
-	entries(): Array<[string, T]>
+	entries(): Array<[K, V]>
 	/**
 	 * Returns a string representation of the cache with its label, size, and
 	 * capacity.
@@ -47,10 +47,10 @@ export interface Cache<T> {
 	/**
 	 * Serializable for JSON.stringify.
 	 */
-	toJSON(): { [key: string]: T }
+	toJSON(): Array<[K, V]>
 }
 
-export interface EphemeralCache<T> extends Cache<T> {
+export interface EphemeralCache<K, V> extends Cache<K, V> {
 	startInterval(): void
 	stopInterval(): void
 }
