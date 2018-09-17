@@ -2,7 +2,7 @@ import { Option } from "safe-types"
 
 export interface BaseCache<K, V> {
 	/**
-	 * Read a value from the cache by key. May not return a value if cache miss.
+	 * Read a value from the cache by key as an `Option<V>`.
 	 */
 	get(key: K): Option<V>
 	/**

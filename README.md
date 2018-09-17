@@ -25,6 +25,7 @@ functionality includes:
 
 -  `Cache.write`: write a value at a key
 -  `Cache.read`: read a value from a key
+-  `Cache.get`: read a value as an `Option<V>` (maybe type)
 -  `Cache.remove`: remove a value by key
 -  `Cache.clear`: empty the cache
 
@@ -55,7 +56,10 @@ userCache.toString()
 // SimpleCache<ID, User> { size: 0, capacity: 10 }
 ```
 
-The four main interaction methods look like the following:
+Here are some examples of the five main interaction methods shown in REPL style.
+If you're curious to learn more about the `Option` type returned from
+`Cache.get`, visit the
+[safe-types repository](https://github.com/alexsasharegan/safe-types).
 
 ```js
 let userA = { name: "User A", id: 1 }
@@ -70,8 +74,12 @@ userCache.read(1)
 // { name: "User A", id: 1 }
 userCache.read(2)
 // { name: "User B", id: 2 }
+userCache.get(2)
+// Some<{ name: "User B", id: 2 }>
 userCache.read(3)
 // undefined
+userCache.get(3)
+// None
 
 userCache.remove(1)
 userCache.size()
