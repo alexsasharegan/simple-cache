@@ -4,6 +4,7 @@ describe("SimpleCache", async () => {
 	it("should not accept a capacity less than 1", async () => {
 		expect(() => SimpleCache(0)).toThrowError(RangeError)
 		expect(() => SimpleCache(0.9)).toThrowError(RangeError)
+		expect(() => SimpleCache(10.9)).toThrowError(RangeError)
 		expect(() => SimpleCache(-1)).toThrowError(RangeError)
 	})
 

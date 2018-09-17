@@ -16,7 +16,7 @@ export function EphemeralCache<K, V>(
 	durationMs: number,
 	typeLabel: TypeLabel = { key: "any", value: "any" }
 ): Cache<K, V> {
-	if (durationMs < 1) {
+	if (durationMs < 1 || !Number.isInteger(durationMs)) {
 		throw new RangeError(
 			`${
 				EphemeralCache.name

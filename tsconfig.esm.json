@@ -3,12 +3,12 @@
 	"compilerOptions": {
 		"pretty": true,
 		"target": "es2015",
-		"module": "commonjs",
+		"module": "esnext",
 		"lib": ["esnext", "dom"],
 		"allowJs": false,
 		"declaration": true,
 		"sourceMap": true,
-		"outDir": "./lib",
+		"outDir": "./esm",
 		"removeComments": false,
 		"noEmit": false,
 

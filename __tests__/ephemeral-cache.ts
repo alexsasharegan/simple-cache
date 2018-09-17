@@ -6,6 +6,7 @@ describe("EphemeralCache", async () => {
 	it("should throw with ", async () => {
 		expect(() => EphemeralCache(1, 0)).toThrowError(RangeError)
 		expect(() => EphemeralCache(1, 0.9)).toThrowError(RangeError)
+		expect(() => EphemeralCache(1, 10.9)).toThrowError(RangeError)
 		expect(() => EphemeralCache(1, -1)).toThrowError(RangeError)
 	})
 

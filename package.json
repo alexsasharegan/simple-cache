@@ -1,56 +1,61 @@
 {
-  "name": "@alexsasharegan/simple-cache",
-  "version": "3.1.0",
-  "description": "A basic key value store with bounded capacity for simple caching.",
-  "main": "lib/index.js",
-  "types": "lib/index.d.ts",
-  "scripts": {
-    "prebuild": "rm -Rf lib",
-    "build:docs": "typedoc --options typedoc.js",
-    "build": "rm -rf lib && tsc",
-    "prepublishOnly": "npm run build",
-    "prerelease": "npm run test:cov",
-    "release": "standard-version",
-    "postrelease": "git push --follow-tags origin master && npm publish --access public",
-    "coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
-    "test:v": "jest --verbose",
-    "test:cov": "jest --verbose --coverage",
-    "test": "npm run test:cov"
-  },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/alexsasharegan/simple-cache.git"
-  },
-  "bugs": {
-    "url": "https://github.com/alexsasharegan/simple-cache/issues"
-  },
-  "homepage": "https://github.com/alexsasharegan/simple-cache#readme",
-  "files": [
-    "lib"
-  ],
-  "jest": {
-    "testEnvironment": "node",
-    "moduleFileExtensions": [
-      "ts",
-      "js"
-    ],
-    "transform": {
-      "^.+\\.ts$": "ts-jest"
-    },
-    "testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(js|ts)$"
-  },
-  "devDependencies": {
-    "@types/jest": "^23.3.2",
-    "@types/node": "^10.9.4",
-    "coveralls": "^3.0.2",
-    "jest": "^23.6.0",
-    "standard-version": "^4.4.0",
-    "ts-jest": "^23.1.4",
-    "ts-node": "^7.0.1",
-    "typedoc": "^0.12.0",
-    "typescript": "^3.0.3"
-  }
+	"name": "@alexsasharegan/simple-cache",
+	"version": "3.1.0",
+	"description": "A basic key value store with bounded capacity for simple caching.",
+	"main": "lib/index.js",
+	"module": "esm/index.js",
+	"types": "lib/index.d.ts",
+	"scripts": {
+		"prebuild": "rm -Rf lib",
+		"build:docs": "typedoc --options typedoc.js",
+		"build:esm": "rm -rf esm && tsc -p tsconfig.esm.json",
+		"build:cjs": "rm -rf lib && tsc",
+		"build": "npm run build:cjs && npm run build:esm",
+		"prepublishOnly": "npm run build",
+		"prerelease": "npm run test:cov",
+		"release": "standard-version",
+		"postrelease": "git push --follow-tags origin master && npm publish --access public",
+		"coveralls": "cat ./coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js",
+		"test:v": "jest --verbose",
+		"test:cov": "jest --verbose --coverage",
+		"test": "npm run test:cov"
+	},
+	"keywords": [],
+	"author": "",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/alexsasharegan/simple-cache.git"
+	},
+	"bugs": {
+		"url": "https://github.com/alexsasharegan/simple-cache/issues"
+	},
+	"homepage": "https://github.com/alexsasharegan/simple-cache#readme",
+	"files": [
+		"lib",
+		"esm",
+		"src"
+	],
+	"jest": {
+		"testEnvironment": "node",
+		"moduleFileExtensions": [
+			"ts",
+			"js"
+		],
+		"transform": {
+			"^.+\\.ts$": "ts-jest"
+		},
+		"testRegex": "(/__tests__/.*|(\\.|/)(test|spec))\\.(js|ts)$"
+	},
+	"devDependencies": {
+		"@types/jest": "^23.3.2",
+		"@types/node": "^10.9.4",
+		"coveralls": "^3.0.2",
+		"jest": "^23.6.0",
+		"standard-version": "^4.4.0",
+		"ts-jest": "^23.1.4",
+		"ts-node": "^7.0.1",
+		"typedoc": "^0.12.0",
+		"typescript": "^3.0.3"
+	}
 }

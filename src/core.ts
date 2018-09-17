@@ -60,7 +60,7 @@ export function CoreCache<K, V>(
 	capacity: number,
 	opts: BaseCacheOptions<K, V> = {}
 ): BaseCache<K, V> & CacheInternals<K, V> {
-	if (capacity < 1 || Math.trunc(capacity) !== capacity) {
+	if (capacity < 1 || !Number.isInteger(capacity)) {
 		throw new RangeError(
 			`Cache requires an integer value greater than or equal to 1`
 		)
