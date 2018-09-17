@@ -1,19 +1,37 @@
 import { BaseCache } from "./cache.interface"
+import { Option } from "safe-types"
 
+/**
+ * `CacheItem` is a simple wrapper for a value type that allows cache capacity
+ * to be managed by persisting items that are accessed most frequently, and
+ * removing items that are accessed least frequently.
+ */
 export interface CacheItem<K, V> {
 	hits: number
 	key: K
 	value: V
 }
 
+/**
+ * A `Rebalancer` is a method that operates on a cache to ensure it honors
+ * its capacity.
+ */
 type Rebalancer<K> = (newKey: K) => void
 
 export interface CacheInternals<K, V> {
 	get_store(): Map<K, CacheItem<K, V>>
 }
 
+/**
+ * An `ItemFactory` is a function that returns an object implementing the
+ * CacheItem structure. Implementers of this function may choose to extend the
+ * CacheItem interface to support special cache behaviors.
+ */
 export type ItemFactory<K, V> = (key: K, value: V) => CacheItem<K, V>
 
+/**
+ * Options for extending the base behavior of the core cache implementation.
+ */
 export interface BaseCacheOptions<K, V> {
 	itemFactory?: ItemFactory<K, V>
 }
@@ -23,6 +41,7 @@ export function create_rebalancer<K, V>(
 	capacity: number
 ): Rebalancer<K> {
 	return function rebalance_cache(newKey: K) {
+		// Sort items in ascending order of hits.
 		let items = Array.from(c.values()).sort((a, b) => a.hits - b.hits)
 
 		while (c.size > capacity) {
@@ -49,12 +68,9 @@ function baseItemFactory<K, V>(key: K, value: V): CacheItem<K, V> {
 }
 
 /**
- * SimpleCache follows the Cache interface to store values by key (string).
- *
- * When deciding on a cache capacity, it's important to consider the size of
- * `T * capacity` in the cache and how much space it will hold in memory.
- * It performs a _"rebalance"_ on each write that pushes it over capacity.
- * A cache rebalance is as expensive as an array sort and an object key delete.
+ * CoreCache implements a base set of the Cache interface's methods, while
+ * providing a few extra methods to make composition more flexible to other
+ * public Cache implementations.
  */
 export function CoreCache<K, V>(
 	capacity: number,
@@ -62,7 +78,7 @@ export function CoreCache<K, V>(
 ): BaseCache<K, V> & CacheInternals<K, V> {
 	if (capacity < 1 || !Number.isInteger(capacity)) {
 		throw new RangeError(
-			`Cache requires an integer value greater than or equal to 1`
+			`Cache capacity requires an integer value greater than or equal to 1`
 		)
 	}
 
@@ -73,6 +89,10 @@ export function CoreCache<K, V>(
 	const cache: BaseCache<K, V> & CacheInternals<K, V> = {
 		get_store() {
 			return c
+		},
+
+		get(k) {
+			return Option.of(cache.read(k))
 		},
 
 		read(k) {

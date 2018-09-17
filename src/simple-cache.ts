@@ -2,12 +2,10 @@ import { Cache, TypeLabel } from "./cache.interface"
 import { CoreCache } from "./core"
 
 /**
- * SimpleCache follows the Cache interface to store values by key (string).
+ * SimpleCache follows the Cache interface to store values `V` by key `K`.
  *
- * When deciding on a cache capacity, it's important to consider the size of
- * `T * capacity` in the cache and how much space it will hold in memory.
- * It performs a _"rebalance"_ on each write that pushes it over capacity.
- * A cache rebalance is as expensive as an array sort and an object key delete.
+ * This cache allows writes up to capacity, beyond which least accessed values
+ * will be removed.
  */
 export function SimpleCache<K, V>(
 	capacity: number,
@@ -16,6 +14,7 @@ export function SimpleCache<K, V>(
 	const {
 		clear,
 		entries,
+		get,
 		invalidate,
 		keys,
 		read,
@@ -28,6 +27,7 @@ export function SimpleCache<K, V>(
 	const cache: Cache<K, V> = {
 		clear,
 		entries,
+		get,
 		invalidate,
 		keys,
 		read,

@@ -1,3 +1,4 @@
+import { None, Some } from "safe-types"
 import { SimpleCache } from "../src/index"
 
 describe("SimpleCache", async () => {
@@ -80,6 +81,14 @@ describe("SimpleCache", async () => {
 
 		c.write(test.key, test.value)
 		expect(c.read(test.key)).toBe(test.value)
+	})
+
+	it("should get value options", async () => {
+		let c = SimpleCache<string, string>(10)
+
+		expect(c.get("test")).toEqual(None())
+		c.write("test", "test")
+		expect(c.get("test")).toEqual(Some("test"))
 	})
 
 	it("should remove an item by key", async () => {

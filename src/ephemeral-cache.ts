@@ -1,15 +1,24 @@
+import { Option } from "safe-types"
 import { Cache, TypeLabel } from "./cache.interface"
 import { CoreCache, CacheItem } from "./core"
 
 interface EphemeralCacheItem<K, V> extends CacheItem<K, V> {
 	/**
-	 * unix milliseconds
+	 * Unix milliseconds timestamp representing the time at which a value expires.
 	 */
 	expiration: number
 }
 
 /**
  * EphemeralCache extends the Cache interface to store values temporarily.
+ * The implementation does not use timers, so expired values are purged on
+ * write/read. To avoid blocking read/write with an `O(n)` purge, the purge is
+ * deferred to the next tick using a Promise. This means that the `Cache.size`
+ * method is non-deterministic--you can write a value that defers a purge, call
+ * size and receive `n`, then try to read `n` values, but because they are
+ * expired, you read `n - x(expired)` items. This tradeoff maintains expiration
+ * accuracy and prevents read/write call stacks from blocking for a cache
+ * expiration purge.
  */
 export function EphemeralCache<K, V>(
 	capacity: number,
@@ -45,8 +54,28 @@ export function EphemeralCache<K, V>(
 		}
 	}
 
+	let lastPurged = 0
+	function defer_purge() {
+		if (Date.now() > lastPurged + durationMs) {
+			// Perform the purge on the next tick to keep writes from blocking.
+			Promise.resolve().then(() => {
+				let now = Date.now()
+
+				let c = get_store() as Map<K, EphemeralCacheItem<K, V>>
+
+				let items = Array.from(c.values())
+				for (let i of items) {
+					if (now > i.expiration) {
+						remove(i.key)
+					}
+				}
+
+				lastPurged = now
+			})
+		}
+	}
+
 	const cache: Cache<K, V> = {
-		write,
 		clear,
 		entries,
 		invalidate,
@@ -54,11 +83,16 @@ export function EphemeralCache<K, V>(
 		remove,
 		size,
 		values,
+		get(k) {
+			return Option.of(cache.read(k))
+		},
+
 		/**
 		 * Implements a custom `read` method so time-to-live expiration is honored.
 		 */
 		read(k) {
 			let c = get_store() as Map<K, EphemeralCacheItem<K, V>>
+			defer_purge()
 
 			let item = c.get(k)
 			if (!item) {
@@ -73,6 +107,11 @@ export function EphemeralCache<K, V>(
 			item.hits += 1
 
 			return item.value
+		},
+
+		write(k, v) {
+			write(k, v)
+			defer_purge()
 		},
 
 		toString() {

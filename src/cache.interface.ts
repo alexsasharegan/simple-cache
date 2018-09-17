@@ -1,8 +1,14 @@
+import { Option } from "safe-types"
+
 export interface BaseCache<K, V> {
 	/**
 	 * Read a value from the cache by key. May not return a value if cache miss.
 	 */
-	read(key: K): V | void
+	get(key: K): Option<V>
+	/**
+	 * Read a value from the cache by key. May not return a value if cache miss.
+	 */
+	read(key: K): V | undefined
 	/**
 	 * Write a value to the cache at a given key.
 	 */
@@ -42,6 +48,7 @@ export interface BaseCache<K, V> {
  * It's primary functionality includes:
  * - `Cache.write`: write a value at a key
  * - `Cache.read`: read a value from a key
+ * - `Cache.get`: read a value as an `Option<V>` (maybe type)
  * - `Cache.remove`: remove a value by key
  * - `Cache.clear`: empty the cache
  */
