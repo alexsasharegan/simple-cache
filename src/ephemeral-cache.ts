@@ -55,18 +55,21 @@ export function EphemeralCache<K, V>(
 	}
 
 	let lastPurged = 0
+	/**
+	 * `defer_purge` compares timestamps on `lastPurged`, and if the `durationMs`
+	 * has passed, enqueues a purge on the next tick to prevent callers from
+	 * blocking the `O(n)` cost (`n` is the current cache size).
+	 */
 	function defer_purge() {
 		if (Date.now() > lastPurged + durationMs) {
-			// Perform the purge on the next tick to keep writes from blocking.
+			// Promise.resolve will run on the next tick
 			Promise.resolve().then(() => {
+				let c = get_store() as Map<K, EphemeralCacheItem<K, V>>
 				let now = Date.now()
 
-				let c = get_store() as Map<K, EphemeralCacheItem<K, V>>
-
-				let items = Array.from(c.values())
-				for (let i of items) {
-					if (now > i.expiration) {
-						remove(i.key)
+				for (let { expiration, key } of c.values()) {
+					if (now > expiration) {
+						remove(key)
 					}
 				}
 
