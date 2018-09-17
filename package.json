@@ -1,6 +1,6 @@
 {
   "name": "@alexsasharegan/simple-cache",
-  "version": "3.2.0",
+  "version": "3.3.0",
   "description": "A basic key value store with bounded capacity for simple caching.",
   "main": "lib/index.js",
   "module": "esm/index.js",
